@@ -1,0 +1,189 @@
+﻿@{
+    Layout = null;
+}
+@model weatherapp.Models.WeatherModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Weather Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom right, #87cefa, #f6d365); /* sky to sunrise */
+            margin: 0;
+            padding: 0;
+            color: black;
+        }
+
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .sidebar {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            color: #000;
+            text-align: center;
+        }
+
+            .sidebar h1 {
+                font-size: 48px;
+            }
+
+        .dashboard {
+            flex: 2;
+            min-width: 500px;
+            padding: 20px;
+        }
+
+            .dashboard h3 {
+                font-weight: bold;
+            }
+
+        .highlight-card {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .week-forecast {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .day-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(5px);
+            color: #000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .search-form {
+            margin: 0 auto 30px;
+            text-align: center;
+        }
+
+            .search-form input {
+                width: 250px;
+                padding: 10px;
+                border-radius: 10px;
+                border: 1px solid #ccc;
+            }
+
+            .search-form button {
+                padding: 10px 20px;
+                margin-left: 10px;
+                border-radius: 10px;
+                background: #343a40;
+                color: white;
+                border: none;
+            }
+    </style>
+</head>
+<script>
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) alert.style.display = 'none';
+    }, 7000);
+</script>
+
+<body>
+    <div class="text-start px-3 py-2">
+        <a href="/Welcome" class="btn btn-dark">&larr; Back</a>
+    </div>
+
+
+    <div class="search-form">
+        <form method="get">
+            <input type="text" name="city" placeholder="Enter city name" />
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    
+    @*@if (ViewBag.Error != null)
+    {
+        <script>alert("@ViewBag.Error");</script>
+    }*@
+    @if (ViewBag.Error != null)
+{
+    <div class="position-fixed top-0 end-0 m-3 alert alert-danger shadow" style="z-index: 1000; min-width: 300px;">
+        @ViewBag.Error
+    </div>
+}
+
+
+    @if (Model == null && string.IsNullOrEmpty(ViewBag.Error as string))
+    {
+        <div class="text-center">
+            <h2>🌤️ Welcome to Weather App</h2>
+            <p>Showing default weather for Mumbai</p>
+        </div>
+    }
+
+    @if (Model != null)
+    {
+        <div class="app-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div style="font-size: 60px;">🌤️</div>
+                <h1>@Model.Main.Temp &deg;C</h1>
+                <p>Feels like @Model.Main.Feels_Like &deg;C</p>
+                <p>@Model.Weather[0].Description</p>
+                <p>@Model.Name</p>
+                <p>@DateTime.Now.ToString("dddd, MMM d @ h:mm tt")</p>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="dashboard">
+                <h3>Today's Highlights</h3>
+                <div class="highlight-grid">
+                    <div class="highlight-card">💧<br />Humidity<br /><strong>@Model.Main.Humidity%</strong></div>
+                    <div class="highlight-card">📈<br />Pressure<br /><strong>@Model.Main.Pressure hPa</strong></div>
+                    <div class="highlight-card">🌬️<br />Wind Speed<br /><strong>@Model.Wind.Speed m/s</strong></div>
+                    <div class="highlight-card">☁️<br />Clouds<br /><strong>@Model.Clouds.All%</strong></div>
+                    <div class="highlight-card">🌅<br />Sunrise<br /><strong>@DateTimeOffset.FromUnixTimeSeconds(Model.Sys.Sunrise).ToLocalTime().ToString("h:mm tt")</strong></div>
+                    <div class="highlight-card">🌇<br />Sunset<br /><strong>@DateTimeOffset.FromUnixTimeSeconds(Model.Sys.Sunset).ToLocalTime().ToString("h:mm tt")</strong></div>
+                </div>
+
+                <h3 class="mt-4">This Week</h3>
+                <div class="week-forecast">
+                    <div class="day-card">Wed<br />🌤️<br />Few Clouds</div>
+                    <div class="day-card">Thu<br />☀️<br />Clear Sky</div>
+                    <div class="day-card">Fri<br />🌧️<br />Rainy</div>
+                    <div class="day-card">Sat<br />☁️<br />Cloudy</div>
+                    <div class="day-card">Sun<br />🌩️<br />Thunder</div>
+                    <div class="day-card">Mon<br />❄️<br />Snow</div>
+                </div>
+            </div>
+        </div>
+    }
+
+</body>
+</html>
